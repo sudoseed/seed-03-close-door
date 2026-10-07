@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>CLOSE_DOOR — SEED #03 · SUDO SEED</title>
+  <meta name="description" content="엘리베이터 닫힘 버튼을 연타해 10층까지 올라가세요. 누군가 “잠깐만요!!” 하고 달려옵니다. 마지막에 당신이 얼마나 이기적인지 공식 판정해 드립니다.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="CLOSE_DOOR — 엘리베이터 닫힘 버튼 연타 게임">
+  <meta property="og:description" content="닫힘 버튼 연타로 당신의 양심을 측정합니다. SUDO SEED 승강기 윤리위원회 공식 판정서 발급.">
+  <meta property="og:url" content="https://sudoseed.github.io/seed-03-close-door/">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/favicon.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="site-head">
+      <div class="wrap head-in">
+        <a class="brand" href="./" aria-label="SUDO SEED 처음 화면">
+          <img src="assets/logo.png" alt="SUDO" width="1248" height="832">
+        </a>
+        <span class="head-tag">SEED #03</span>
+        <button class="sound-btn" id="soundBtn" type="button" aria-pressed="true" aria-label="효과음 끄기">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/>
+            <path class="wave" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path class="cross" d="M16.5 9.5l5 5m0-5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span id="soundLabel">ON</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- 1. 부팅 -->
+      <section class="screen boot" id="boot" aria-labelledby="bootTitle">
+        <div class="wrap wrap-narrow">
+          <p class="eyebrow">SEED #03 · SUDO SEED</p>
+          <h1 class="title" id="bootTitle">CLOSE_DOOR<span class="cursor" aria-hidden="true">_</span></h1>
+          <p class="sub">엘리베이터 닫힘 버튼 연타 게임 <span>(그리고 당신의 양심 테스트)</span></p>
+
+          <div class="term" id="term">
+            <div class="term-bar">
+              <span class="term-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span>ELEVATOR_OS · tty0</span>
+            </div>
+            <div class="term-body">
+              <ol class="term-lines" id="termLines" aria-live="polite"></ol>
+              <p class="term-skip" id="termSkip">화면을 누르면 건너뜁니다</p>
+            </div>
+          </div>
+
+          <div class="boot-cta" id="bootCta">
+            <button class="btn-board" id="boardBtn" type="button">[ 탑승하기 ]</button>
+            <ul class="howto">
+              <li><b>닫힘 ▶|◀</b> 연타하면 문이 닫히고, 다 닫히면 다음 층으로 올라갑니다. 손을 떼면 문이 다시 열립니다.</li>
+              <li><b>잠깐만요!!</b> 누군가 달려오면 <b>열림 ◀|▶</b>을 눌러 태울 수 있습니다. 양심은 오르고 시간은 손해입니다.</li>
+              <li><b>10층</b>에 도착하면 승강기 윤리위원회가 당신을 판정합니다.</li>
+            </ul>
+            <p class="keys"><kbd>SPACE</kbd> 닫힘 <kbd>O</kbd> / <kbd>ENTER</kbd> 열림</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. 게임 -->
+      <section class="screen game" id="game" aria-label="엘리베이터" tabindex="-1" hidden>
+        <div class="wrap wrap-game">
+          <div class="hud">
+            <div class="hud-cell hud-floor">
+              <span class="hud-label">FLOOR</span>
+              <div class="led" id="led" role="img" aria-label="1층">
+                <span class="led-arrow" id="ledArrow" aria-hidden="true">▲</span>
+                <span class="seg" data-pos="0" aria-hidden="true"><i class="a"></i><i class="b"></i><i class="c"></i><i class="d"></i><i class="e"></i><i class="f"></i><i class="g"></i></span>
+                <span class="seg" data-pos="1" aria-hidden="true"><i class="a"></i><i class="b"></i><i class="c"></i><i class="d"></i><i class="e"></i><i class="f"></i><i class="g"></i></span>
+              </div>
+            </div>
+            <div class="hud-cell hud-time">
+              <span class="hud-label">TIME</span>
+              <span class="hud-value" id="timer">00.00</span>
+              <span class="hud-pop" id="timePop" aria-hidden="true"></span>
+            </div>
+            <div class="hud-cell hud-cons">
+              <span class="hud-label">양심</span>
+              <span class="hud-value" id="cons">0</span>
+              <span class="hud-pop" id="consPop" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="cabin" id="cabin">
+            <div class="doorway" id="doorway">
+              <div class="corridor" id="corridor" aria-hidden="true">
+                <div class="c-ceiling"></div>
+                <div class="c-wall">
+                  <span class="c-plate" id="plate">1F</span>
+                  <span class="c-door c-door-l"><b id="roomL">101</b></span>
+                  <span class="c-door c-door-r"><b id="roomR">102</b></span>
+                  <span class="c-deco" id="deco">🌵</span>
+                </div>
+                <div class="c-floor"></div>
+                <div class="runner" id="runner" hidden>
+                  <div class="runner-body" id="runnerBody">
+                    <span class="r-head" id="rHead">👵</span>
+                    <span class="r-torso" id="rTorso"></span>
+                    <span class="r-legs"><i></i><i></i></span>
+                    <span class="r-item" id="rItem">🛒</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="door door-l" id="doorL" aria-hidden="true"></div>
+              <div class="door door-r" id="doorR" aria-hidden="true"></div>
+
+              <div class="fx" aria-hidden="true">
+                <div class="bubble" id="bubble" hidden>
+                  <p class="bubble-who" id="bubbleWho">택배 기사님</p>
+                  <p class="bubble-text" id="bubbleText">잠깐만요!!</p>
+                  <span class="bubble-gauge"><i id="gauge"></i></span>
+                </div>
+                <p class="gapline" id="gapline" hidden>…아.</p>
+                <p class="hand" id="hand" hidden><span>🤚</span><b>문틈에 손 넣기!</b></p>
+                <p class="banner" id="banner" hidden></p>
+              </div>
+            </div>
+            <p class="door-meter"><span>DOOR</span> <b id="doorPct">100%</b> <span class="door-state" id="doorState">열림</span></p>
+          </div>
+
+          <div class="inside">
+            <p class="inside-row"><span class="inside-label">탑승객</span> <span class="riders" id="riders"><em>나 혼자</em></span></p>
+            <p class="inside-row"><span class="inside-label">어색함</span> <span class="awk"><i id="awkBar"></i></span> <b class="awk-val" id="awkVal">0%</b></p>
+          </div>
+
+          <div class="panel">
+            <button class="ebtn ebtn-open" id="openBtn" type="button" aria-label="열림 (O 또는 Enter)">
+              <span class="ebtn-icon" aria-hidden="true">◀|▶</span>
+              <span class="ebtn-label">열림</span>
+              <span class="ebtn-key">O · ENTER</span>
+            </button>
+            <button class="ebtn ebtn-close" id="closeBtn" type="button" aria-label="닫힘 (스페이스바)">
+              <span class="ebtn-icon" aria-hidden="true">▶|◀</span>
+              <span class="ebtn-label">닫힘</span>
+              <span class="ebtn-key">SPACE</span>
+              <span class="ripples" id="ripples" aria-hidden="true"></span>
+            </button>
+            <div class="cps-layer" id="cpsLayer" aria-hidden="true"></div>
+          </div>
+          <p class="cps-now"><span>CPS</span> <b id="cpsNow">0.0</b> <span class="cps-max">최고 <b id="cpsMax">0.0</b></span></p>
+        </div>
+
+        <p class="sysmsg" id="sysmsg" role="status" hidden></p>
+      </section>
+
+      <!-- 3. 판정서 -->
+      <section class="screen result" id="result" aria-labelledby="docTitle" hidden>
+        <div class="wrap wrap-narrow">
+          <article class="doc" id="doc">
+            <header class="doc-head">
+              <p class="doc-org"><span>SUDO SEED 승강기 윤리위원회</span><span>ELEVATOR_OS v2.6</span></p>
+              <h2 class="doc-title" id="docTitle" tabindex="-1">엘리베이터 탑승 태도<br>공식 판정서</h2>
+              <p class="doc-meta"><span>문서번호 <b id="dNo">CD-2026-00000</b></span><span>발급일 <b id="dDate">—</b></span></p>
+            </header>
+
+            <table class="doc-table">
+              <caption>탑승 기록</caption>
+              <tbody id="dRows"></tbody>
+            </table>
+
+            <div class="doc-verdict">
+              <p class="doc-label">칭호</p>
+              <p class="doc-name" id="dTitle">—</p>
+              <p class="doc-rank" id="dRank">—</p>
+              <div class="seal-hr" id="sealHr" aria-label="도장: 인사고과 -1" hidden>
+                <span>인사고과</span><b>-1</b>
+              </div>
+            </div>
+
+            <div class="doc-review">
+              <p class="doc-label">총평</p>
+              <p id="dReview">—</p>
+            </div>
+
+            <footer class="doc-foot">
+              <p>위 탑승자의 엘리베이터 탑승 태도를 상기와 같이 판정합니다.</p>
+              <p class="doc-fine">본 판정서는 인사고과에 반영되지 않습니다(아마도).</p>
+              <p class="doc-sign">SUDO SEED 승강기 윤리위원회</p>
+            </footer>
+
+            <div class="seal" id="seal" aria-label="도장: SUDO SEED 승강기 윤리위원회">
+              <svg viewBox="0 0 200 200" id="sealSvg" aria-hidden="true"></svg>
+            </div>
+          </article>
+
+          <div class="actions">
+            <button class="btn" id="copyBtn" type="button">결과 복사</button>
+            <button class="btn" id="saveBtn" type="button">판정서 이미지 저장</button>
+            <button class="btn btn-red" id="againBtn" type="button">다시 타기</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap foot-in">
+        <p>SEED #03 · SUDO SEED</p>
+        <nav class="foot-links" aria-label="SUDO SEED 채널">
+          <a href="https://github.com/sudoseed" target="_blank" rel="noopener">github.com/sudoseed</a>
+          <a href="https://youtube.com/@sudoseed" target="_blank" rel="noopener">youtube.com/@sudoseed</a>
+        </nav>
+      </div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <noscript><p class="noscript">CLOSE_DOOR는 JavaScript가 켜져 있어야 탑승할 수 있습니다.</p></noscript>
+</body>
+</html>
